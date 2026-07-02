@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regex Tester — Live Regular Expression Tester by Michael Zhang</title>
+<meta name="description" content="Free online regex tester with real-time matching, group highlighting, match info, and common pattern library. Test JavaScript regular expressions instantly.">
+<meta name="keywords" content="regex tester, regular expression, regex online, regex validator, regex debugger, pattern matching">
+<style>
+:root{--bg:#0d1117;--s:#161b22;--b:#30363d;--t:#e6edf3;--m:#8b949e;--a:#58a6ff;--g:#3fb950;--r:#f85149;--y:#d29922;--p:#bc8cff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--t);line-height:1.6}
+.header{background:var(--s);border-bottom:1px solid var(--b);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:1.3rem}.header h1 span{color:var(--a)}.header .by{color:var(--m);font-size:.85rem}
+.header .by a{color:var(--a);text-decoration:none}
+.container{max-width:1100px;margin:0 auto;padding:1.5rem}
+.regex-bar{display:flex;gap:.5rem;align-items:center;background:var(--s);border:1px solid var(--b);border-radius:10px;padding:.6rem 1rem;margin-bottom:1rem}
+.regex-bar .slash{color:var(--r);font-size:1.2rem;font-family:monospace;font-weight:700}
+.regex-bar input{flex:1;background:transparent;border:none;color:var(--t);font-family:'SF Mono','Fira Code',monospace;font-size:1rem;outline:none}
+.regex-bar .flags{display:flex;gap:.3rem}
+.regex-bar .flag{padding:.2rem .5rem;border-radius:4px;border:1px solid var(--b);background:transparent;color:var(--m);cursor:pointer;font-family:monospace;font-size:.85rem;transition:all .15s}
+.regex-bar .flag.on{background:rgba(88,166,255,.2);border-color:var(--a);color:var(--a)}
+.error-bar{background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.3);border-radius:8px;padding:.5rem 1rem;color:var(--r);font-size:.85rem;margin-bottom:1rem;display:none}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:1.2rem}
+.card h3{font-size:.95rem;margin-bottom:.5rem;color:var(--m);text-transform:uppercase;letter-spacing:.05em;font-size:.8rem}
+#test-input{width:100%;min-height:200px;background:var(--bg);border:1px solid var(--b);border-radius:8px;color:var(--t);font-family:'SF Mono','Fira Code',monospace;font-size:.9rem;padding:1rem;resize:vertical}
+#test-input:focus{outline:none;border-color:var(--a)}
+.highlighted{font-family:'SF Mono','Fira Code',monospace;font-size:.9rem;line-height:1.6;white-space:pre-wrap;word-break:break-word;min-height:200px;background:var(--bg);border:1px solid var(--b);border-radius:8px;padding:1rem}
+.highlighted .match{background:rgba(88,166,255,.25);border-bottom:2px solid var(--a);border-radius:2px;padding:0 1px}
+.highlighted .group1{background:rgba(63,185,80,.2);border-bottom:2px solid var(--g)}
+.highlighted .group2{background:rgba(188,140,255,.2);border-bottom:2px solid var(--p)}
+.highlighted .group3{background:rgba(210,153,34,.2);border-bottom:2px solid var(--y)}
+.match-info{margin-top:1rem}
+.match-card{background:var(--bg);border:1px solid var(--b);border-radius:8px;padding:.8rem;margin-bottom:.5rem;font-family:monospace;font-size:.85rem}
+.match-card .label{color:var(--m);font-size:.75rem;text-transform:uppercase}
+.match-card .val{color:var(--a);margin-top:.2rem}
+.match-card .groups{margin-top:.3rem}
+.match-card .group{color:var(--g);padding-left:1rem}
+.patterns{margin-top:1.5rem}
+.patterns h3{margin-bottom:.8rem;font-size:.95rem}
+.pattern-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.5rem}
+.pattern-item{background:var(--s);border:1px solid var(--b);border-radius:8px;padding:.6rem .8rem;cursor:pointer;transition:all .15s;font-size:.8rem}
+.pattern-item:hover{border-color:var(--a)}
+.pattern-item .name{color:var(--t);font-weight:600;margin-bottom:.2rem}
+.pattern-item code{color:var(--a);font-size:.75rem;word-break:break-all}
+.stats{display:flex;gap:1.5rem;margin:1rem 0;flex-wrap:wrap}
+.stat{font-size:.85rem;color:var(--m)}
+.stat span{color:var(--a);font-weight:600}
+.ad-slot{background:var(--s);border:1px dashed var(--b);border-radius:8px;padding:1rem;text-align:center;color:var(--m);font-size:.8rem;margin:1.5rem 0;min-height:90px;display:flex;align-items:center;justify-content:center}
+.footer{text-align:center;padding:2rem;color:var(--m);font-size:.8rem;border-top:1px solid var(--b);margin-top:2rem}
+.footer a{color:var(--a);text-decoration:none}
+.btn{padding:.4rem .8rem;border-radius:6px;border:1px solid var(--b);background:var(--s);color:var(--t);cursor:pointer;font-size:.8rem}
+.btn:hover{border-color:var(--a)}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🔍 <span>Regex</span> Tester</h1>
+  <span class="by">by <a href="https://github.com/mzio">Michael Zhang</a> · <a href="https://michael-ami-01.github.io/devtools/">DevTools</a> · <a href="https://michael-ami-01.github.io/">All Tools</a></span>
+</div>
+<div class="container">
+  <div class="ad-slot"><!-- top ad --></div>
+  <div class="regex-bar">
+    <span class="slash">/</span>
+    <input type="text" id="regex-input" placeholder="Enter regex pattern..." oninput="test()" value="(\w+)@(\w+)\.(\w+)">
+    <span class="slash">/</span>
+    <div class="flags">
+      <button class="flag on" onclick="toggleFlag(this,'g')" data-flag="g">g</button>
+      <button class="flag" onclick="toggleFlag(this,'i')" data-flag="i">i</button>
+      <button class="flag" onclick="toggleFlag(this,'m')" data-flag="m">m</button>
+      <button class="flag" onclick="toggleFlag(this,'s')" data-flag="s">s</button>
+      <button class="flag" onclick="toggleFlag(this,'u')" data-flag="u">u</button>
+    </div>
+  </div>
+  <div class="error-bar" id="error"></div>
+  <div class="stats" id="stats"></div>
+  <div class="grid">
+    <div class="card">
+      <h3>Test String</h3>
+      <textarea id="test-input" oninput="test()">user@example.com
+admin@company.org
+test.name@domain.co.uk
+not-an-email
+hello@world.net</textarea>
+    </div>
+    <div class="card">
+      <h3>Matches (highlighted)</h3>
+      <div class="highlighted" id="highlighted"></div>
+      <div class="match-info" id="match-info"></div>
+    </div>
+  </div>
+  <div class="patterns">
+    <h3>📚 Common Patterns <button class="btn" onclick="document.getElementById('pattern-grid').style.display=document.getElementById('pattern-grid').style.display==='none'?'grid':'none'">Toggle</button></h3>
+    <div class="pattern-grid" id="pattern-grid">
+      <div class="pattern-item" onclick="usePattern('[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}','Email Address')"><div class="name">📧 Email</div><code>[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}</code></div>
+      <div class="pattern-item" onclick="usePattern('https?:\\/\\/[\\w\\-]+(\\.[\\w\\-]+)+[\\w\\-.,@?^=%&:/~+#]*','URL')"><div class="name">🔗 URL</div><code>https?://[\w\-]+(\.[\w\-]+)+...</code></div>
+      <div class="pattern-item" onclick="usePattern('\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b','IP Address')"><div class="name">🌐 IPv4</div><code>\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b</code></div>
+      <div class="pattern-item" onclick="usePattern('\\b\\d{3}[-.]?\\d{3}[-.]?\\d{4}\\b','Phone (US)')"><div class="name">📱 Phone (US)</div><code>\b\d{3}[-.]?\d{3}[-.]?\d{4}\b</code></div>
+      <div class="pattern-item" onclick="usePattern('#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})\\b','Hex Color')"><div class="name">🎨 Hex Color</div><code>#([0-9a-fA-F]{3}|{6})\b</code></div>
+      <div class="pattern-item" onclick="usePattern('\\b\\d{4}[-/]\\d{2}[-/]\\d{2}\\b','Date YYYY-MM-DD')"><div class="name">📅 Date</div><code>\b\d{4}[-/]\d{2}[-/]\d{2}\b</code></div>
+      <div class="pattern-item" onclick="usePattern('\\b\\d{1,2}:\\d{2}(:\\d{2})?\\s?(AM|PM|am|pm)?\\b','Time')"><div class="name">⏰ Time</div><code>\b\d{1,2}:\d{2}(:\d{2})?\s?(AM|PM)?\b</code></div>
+      <div class="pattern-item" onclick="usePattern('<([a-zA-Z][a-zA-Z0-9]*)\\b[^>]*>(.*?)<\\/\\1>','HTML Tag')"><div class="name">🏷️ HTML Tag</div><code>&lt;(\w+)[^&gt;]*&gt;(.*?)&lt;/\1&gt;</code></div>
+      <div class="pattern-item" onclick="usePattern('\\$[\\d,]+(\\.[\\d]{2})?','Currency USD')"><div class="name">💵 USD</div><code>\$[\d,]+(\.\d{2})?</code></div>
+      <div class="pattern-item" onclick="usePattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$','Strong Password')"><div class="name">🔒 Password</div><code>(?=.*[a-z])(?=.*[A-Z])(?=.*\d)...</code></div>
+      <div class="pattern-item" onclick="usePattern('\\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\b','UUID')"><div class="name">🆔 UUID</div><code>[0-9a-f]{8}-[0-9a-f]{4}-...\b</code></div>
+      <div class="pattern-item" onclick="usePattern('\\b\\d{5}(-\\d{4})?\\b','ZIP Code')"><div class="name">📮 ZIP Code</div><code>\b\d{5}(-\d{4})?\b</code></div>
+    </div>
+  </div>
+  <div class="ad-slot"><!-- bottom ad --></div>
+</div>
+<div class="footer">Built by <a href="https://github.com/mzio">Michael Zhang</a> · <a href="https://michael-ami-01.github.io/">All Dev Tools</a> · <a href="https://github.com/michael-ami-01/regex-tester">Source</a></div>
+<script>
+function getFlags(){return Array.from(document.querySelectorAll('.flag.on')).map(f=>f.dataset.flag).join('');}
+function toggleFlag(el){el.classList.toggle('on');test();}
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function usePattern(p){
+  document.getElementById('regex-input').value=p;
+  test();
+}
+
+function test(){
+  const pattern=document.getElementById('regex-input').value;
+  const flags=getFlags();
+  const text=document.getElementById('test-input').value;
+  const errEl=document.getElementById('error');
+  const hlEl=document.getElementById('highlighted');
+  const infoEl=document.getElementById('match-info');
+  const statsEl=document.getElementById('stats');
+
+  errEl.style.display='none';
+  if(!pattern){hlEl.innerHTML=escHtml(text);infoEl.innerHTML='';statsEl.innerHTML='';return;}
+
+  let re;
+  try{re=new RegExp(pattern,flags);}
+  catch(e){errEl.textContent='⚠️ '+e.message;errEl.style.display='block';hlEl.innerHTML=escHtml(text);infoEl.innerHTML='';statsEl.innerHTML='';return;}
+
+  const colors=['match','group1','group2','group3'];
+  let matches=[];
+  let html='';
+  let lastIndex=0;
+
+  if(flags.includes('g')){
+    let m;
+    while((m=re.exec(text))!==null){
+      matches.push(m);
+      html+=escHtml(text.slice(lastIndex,m.index));
+      html+='<span class="match">'+escHtml(m[0])+'</span>';
+      lastIndex=m.index+m[0].length;
+      if(m[0].length===0){re.lastIndex++;if(re.lastIndex>text.length)break;}
+    }
+  }else{
+    const m=re.exec(text);
+    if(m){matches.push(m);html+=escHtml(text.slice(0,m.index));html+='<span class="match">'+escHtml(m[0])+'</span>';lastIndex=m.index+m[0].length;}
+  }
+  html+=escHtml(text.slice(lastIndex));
+  hlEl.innerHTML=html||escHtml(text);
+
+  // Stats
+  statsEl.innerHTML='<div class="stat">Matches: <span>'+matches.length+'</span></div>'+
+    '<div class="stat">Steps: <span>~'+Math.min(text.length*2,9999)+'</span></div>'+
+    '<div class="stat">Flags: <span>/'+flags+'/</span></div>';
+
+  // Match details
+  let info='';
+  matches.slice(0,20).forEach((m,i)=>{
+    info+='<div class="match-card"><div class="label">Match '+(i+1)+' (index '+m.index+'–'+(m.index+m[0].length)+')</div>';
+    info+='<div class="val">'+escHtml(m[0])+'</div>';
+    if(m.length>1){
+      info+='<div class="groups">';
+      for(let g=1;g<m.length;g++){
+        if(m[g]!==undefined)info+='<div class="group">Group '+g+': '+escHtml(m[g])+'</div>';
+      }
+      info+='</div>';
+    }
+    info+='</div>';
+  });
+  if(matches.length>20)info+='<div class="match-card"><div class="label">... and '+(matches.length-20)+' more matches</div></div>';
+  infoEl.innerHTML=info;
+}
+test();
+</script>
+</body>
+</html>
